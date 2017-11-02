@@ -104,6 +104,16 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
   }
 }
 
+const drawDiamond = (context, x, y, width, height) => {
+  context.translate(x, y)
+  context.lineTo(width / 2, 0)
+  context.lineTo(width, height / 2)
+  context.lineTo(width / 2, height)
+  context.lineTo(0, height / 2)
+  context.lineTo(width / 2, 0)
+  context.translate(-x, -y)
+}
+
 class AvatarEditor extends React.Component {
   static propTypes = {
     scale: PropTypes.number,
@@ -116,7 +126,6 @@ class AvatarEditor extends React.Component {
       PropTypes.number,
       PropTypes.arrayOf(PropTypes.number)
     ]),
-    borderRadius: PropTypes.number,
     width: PropTypes.number,
     height: PropTypes.number,
     position: PropTypes.shape({
@@ -144,19 +153,18 @@ class AvatarEditor extends React.Component {
     scale: 1,
     rotate: 0,
     border: 25,
-    borderRadius: 0,
     width: 200,
     height: 200,
     color: [0, 0, 0, 0.5],
     style: {},
-    onDropFile () {},
-    onLoadFailure () {},
-    onLoadSuccess () {},
-    onImageReady () {},
-    onImageChange () {},
-    onMouseUp () {},
-    onMouseMove () {},
-    onPositionChange () {}
+    onDropFile () { },
+    onLoadFailure () { },
+    onLoadSuccess () { },
+    onImageReady () { },
+    onImageChange () { },
+    onMouseUp () { },
+    onMouseMove () { },
+    onPositionChange () { }
   }
 
   state = {
@@ -544,24 +552,33 @@ class AvatarEditor extends React.Component {
     const height = dimensions.canvas.height
     const width = dimensions.canvas.width
 
-    // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
-    borderRadius = Math.max(borderRadius, 0)
-    borderRadius = Math.min(
-      borderRadius,
-      width / 2 - borderSizeX,
-      height / 2 - borderSizeY
-    )
-
     context.beginPath()
     // inner rect, possibly rounded
-    drawRoundedRect(
-      context,
-      borderSizeX,
-      borderSizeY,
-      width - borderSizeX * 2,
-      height - borderSizeY * 2,
-      borderRadius
-    )
+    if (borderRadius === 'diamond') {
+      drawDiamond(
+        context,
+        borderSizeX,
+        borderSizeY,
+        width - borderSizeX * 2,
+        height - borderSizeY * 2
+      )
+    } else {
+      borderRadius = Math.max(borderRadius, 0)
+      borderRadius = Math.min(
+        borderRadius,
+        width / 2 - borderSizeX,
+        height / 2 - borderSizeY
+      )
+
+      drawRoundedRect(
+        context,
+        borderSizeX,
+        borderSizeY,
+        width - borderSizeX * 2,
+        height - borderSizeY * 2,
+        borderRadius
+      )
+    }
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
 
